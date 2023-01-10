@@ -2,9 +2,9 @@ const {User, UserDTO} = require('../app/models/user.model');
 
 class UserService{
     
-    getAll = async(conds) => {
+    getAll = async(query) => {
     
-        const users = await User.find(conds);
+        const users = await User.find(query);
         for (let i in users)
             users[i] = new UserDTO(users[i]);
         
@@ -12,20 +12,20 @@ class UserService{
 
     }
 
-    update = async(acc) => {
+    update = async(userID, data) => {
 
-        await User.findOneAndUpdate({_id: acc._id}, acc);
-        const nAcc = await User.findById(acc._id);
+        await User.findOneAndUpdate({_id: userID}, data);
+        const nUser = await User.findById(userID);
 
-        return nAcc ? new UserDTO(nAcc) : nAcc;
+        return nUser ? new UserDTO(nUser) : nUser;
 
     }
 
-    create = async(acc) => {
+    create = async(data) => {
 
-        const nAcc = await User.create(acc);
+        const nUser = await User.create(data);
 
-        return nAcc ? new UserDTO(nAcc) : nAcc;
+        return nUser ? new UserDTO(nUser) : nUser;
 
     }
 
@@ -42,20 +42,20 @@ class UserService{
     // dont need dto
     findUsername = async(username) => {
 
-        const acc = await User.findOne({$or:[
+        const user = await User.findOne({$or:[
             {email: username},
             {phoneNumber: username}
         ]});
 
-        return acc ? acc.toObject() : acc;
+        return user ? user.toObject() : user;
 
     }
 
-    findById = async(accId) => {
+    findById = async(userID) => {
 
-        const acc = await User.findById(accId);
+        const user = await User.findById(userID);
         
-        return acc ? new UserDTO(acc) : acc;
+        return user ? new UserDTO(user) : user;
 
     }
 

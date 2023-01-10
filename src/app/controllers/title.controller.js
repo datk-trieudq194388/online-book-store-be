@@ -1,4 +1,4 @@
-// const titleService = require('../../services/title.service');
+const titleService = require('../../services/title.service');
 const Util = require('../../utils/util');
 
 class TitleController{
@@ -58,13 +58,11 @@ class TitleController{
     updateTitle = async(req, res) => {
 
         try {
-            const titleId = req.query.id;
+            const titleID = req.query.id;
             const body = req.body;
             delete body.trend;
-            
-            body._id = titleId;
 
-            const title = await titleService.update(body);
+            const title = await titleService.update(titleID, body);
 
             if(!title) return res.status(404).json({message: 'not found'});
 
@@ -79,10 +77,10 @@ class TitleController{
     deleteTitle = async(req, res) => {
 
         try {
-            const titleId = req.query.id;
+            const titleID = req.query.id;
             const currentTime = new Date();
 
-            const title = await titleService.update({_id: titleId, deletedAt: currentTime});
+            const title = await titleService.update({_id: titleID, deletedAt: currentTime});
 
             if(!title) return res.status(404).json({message: 'not found'});
 

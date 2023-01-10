@@ -1,5 +1,5 @@
-// const bookService = require('../../services/book.service');
-// const titleService = require('../../services/title.service');
+const bookService = require('../../services/book.service');
+const titleService = require('../../services/title.service');
 const Util = require('../../utils/util');
 
 class BookController{
@@ -7,9 +7,9 @@ class BookController{
     getAllBooks = async(req, res) => {
         
         try{
-            const titleId = req.params.titleId;
+            const titleID = req.params.titleID;
 
-            const books = await bookService.getAll(titleId);
+            const books = await bookService.getAll(titleID);
 
             return res.json(books);
 
@@ -22,11 +22,11 @@ class BookController{
     getBook = async(req, res) => {
 
         try{
-            const bookId = req.params.id;
+            const bookID = req.params.id;
 
-            const book = await bookService.findById(bookId);
+            const book = await bookService.findById(bookID);
 
-            if(!book) return res.status(404).json({message: 'Not found'});
+            if(!book) return res.status(404).json({message: 'not found'});
 
             return res.json(book);
 
@@ -43,12 +43,12 @@ class BookController{
             const body = req.body;
             delete body.status;
 
-            if(!(await titleService.findById(body.titleId)))
+            if(!(await titleService.findById(body.titleID)))
                 return res.status(400).json({message: 'title is not found'});
 
-            const nBook = await bookService.create({titleId: body.titleId});
+            const nBook = await bookService.create({titleID: body.titleID});
 
-            if(!nBook) return res.status(500).json('cannot create book');
+            if(!nBook) return res.status(500).json({message: 'cannot create book'});
             return res.json(nBook);
 
         }catch(err){
@@ -61,16 +61,14 @@ class BookController{
     updateBook = async(req, res) => {
 
         try{
-            const bookId = req.query.id;
+            const bookID = req.query.id;
             const body = req.body;
-
-            body._id = bookId;
 
             if(body.status) body.status = Util.formatStatus(res, body.status);
 
-            const book = await bookService.update(body);
+            const book = await bookService.update(bookID, body);
 
-            if(!book) return res.status(404).json('Not found');
+            if(!book) return res.status(500).json({message: 'cannot update book'});
 
             return res.json(book);
 

@@ -2,9 +2,9 @@ const {Book} = require('../app/models/book.model');
 
 class BookService{
     
-    getAll = async(titleId) => {
+    getAll = async(titleID) => {
     
-        const books = await Book.find({titleId: titleId});
+        const books = await Book.find({titleID: titleID});
         for(let i in books)
             books[i] = books[i].toObject();
         
@@ -12,21 +12,19 @@ class BookService{
 
     }
 
-    findById = async(bookId) => {
-        const book = await Book.findById(bookId);
+    findById = async(bookID) => {
+        const book = await Book.findById(bookID);
         return book ? book.toObject() : book;
     }
 
-    update = async(book) => {
-        await Book.findOneAndUpdate({_id: book._id}, book);
-        const nBook = await Book.findById(book._id);
+    update = async(bookID, data) => {
+        await Book.findOneAndUpdate({_id: bookID}, data);
+        const nBook = await Book.findById(bookID);
         return nBook ? nBook.toObject() : nBook;
     }
 
-    delete = async(itemId) => {
-
-     
-
+    delete = async(bookID) => {
+        // code here
     }
 
     create = async(book) => {

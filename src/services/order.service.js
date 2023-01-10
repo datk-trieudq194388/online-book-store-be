@@ -18,10 +18,10 @@ class OrderService{
 
     }
 
-    update = async(order) => {
+    update = async(orderID, data) => {
 
-        await Order.findOneAndUpdate({_id: order._id}, order);
-        const nOrder = await Order.findById(order._id);
+        await Order.findOneAndUpdate({_id: orderID}, data);
+        const nOrder = await Order.findById(orderID);
 
         return nOrder;
 
@@ -30,7 +30,6 @@ class OrderService{
     create = async(order) => {
      
         const nOrder = await Order.create(order);
-        
         return nOrder ? nOrder.toObject() : nOrder;
 
     }

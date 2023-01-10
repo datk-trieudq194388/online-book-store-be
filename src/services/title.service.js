@@ -29,8 +29,8 @@ class TitleService{
 
     }
 
-    findById = async(titleId) => {
-        let title = await Title.findOne({_id: titleId, deletedAt: null});
+    findById = async(titleID) => {
+        let title = await Title.findOne({_id: titleID, deletedAt: null});
 
         if(!title) return title;
 
@@ -38,14 +38,14 @@ class TitleService{
         return new TitleDTO(title);
     }
 
-    checkExistedId = async(titleId) => {
-        return await Title.exists({_id: titleId, deletedAt: null});
+    checkExistedId = async(titleID) => {
+        return await Title.exists({_id: titleID, deletedAt: null});
     }
 
-    update = async(title) => {
+    update = async(titleID, data) => {
 
-        await Title.findOneAndUpdate({_id: title._id, deletedAt: null}, title);
-        const nTitle = await Title.findById(title._id);
+        await Title.findOneAndUpdate({_id: titleID}, data);
+        const nTitle = await Title.findById(titleID);
 
         return nTitle ? new TitleDTO(nTitle) : nTitle;
 
@@ -56,14 +56,12 @@ class TitleService{
         let nTitle = await Title.create(title);
         if(!nTitle) return nTitle;
 
-        nTitle = await this.countQuantity(nTitle);
         return new TitleDTO(nTitle);
 
     }
 
     countQuantity = async(title) => {
-        title.quantity = await Book.countDocuments({titleId: title._id});
-        title.availability = await Book.countDocuments({titleId: title._id, status: BStatus.AVAILABLE});
+        title.quantity = await Book.countDocuments({titleID: title._id, status: BStatus.AVAILABLE});
         return title;
     }
     

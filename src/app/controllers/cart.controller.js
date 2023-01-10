@@ -1,5 +1,5 @@
-// const cartService = require('../../services/cart.service');
-// const titleService = require('../../services/title.service');
+const cartService = require('../../services/cart.service');
+const titleService = require('../../services/title.service');
 const authorization = require('../../middlewares/authorization');
 const Util = require('../../utils/util');
 
@@ -8,9 +8,9 @@ class CartController{
     getCart = async(req, res) => {
 
         try {
-            const userId = authorization.requestUser(req, res);
+            const userID = authorization.requestUser(req, res);
 
-            const carts = await cartService.getAll(userId);
+            const carts = await cartService.getAll(userID);
 
             for (let i in carts){
                 carts[i] = carts[i].toObject();
@@ -39,8 +39,7 @@ class CartController{
             let body = req.body;
             const userID = authorization.requestUser(req, res);
             body['userID'] = userID;
-            // let item = {titleId: body.titleId, userId: userId, count: body.count, isChecked: body.isChecked};
-
+            
             if(!await titleService.checkExistedId(body.titleID)) 
                 return res.status(400).json({message: 'the title is not existed'});
 
@@ -65,15 +64,15 @@ class CartController{
     updateCart = async(req, res) => {
 
         try {
-            const itemId = req.query.id;
+            const itemID = req.query.id;
             const body = req.body;
-            const userId = authorization.requestUser(req, res);
+            const userID = authorization.requestUser(req, res);
           
-            const item = await cartService.findById(itemId);
+            const item = await cartService.findById(itemID);
 
-            if(item.userId !== userId) return res.status(400).json({message: 'you are not allowed'});
+            if(item.userID !== userID) return res.status(400).json({message: 'you are not allowed'});
 
-            const nItem = await cartService.update(body);
+            const nItem = await cartService.update(itemID, body);
 
             if(!nItem) return res.status(400).json({message: 'update failed'});
 
@@ -87,14 +86,14 @@ class CartController{
     deleteFromCart = async(req, res) => {
 
         try {
-            const itemId = req.query.id;
-            const userId = authorization.requestUser(req, res);
+            const itemID = req.query.id;
+            const userID = authorization.requestUser(req, res);
 
-            const item = await cartService.findById(itemId);
+            const item = await cartService.findById(itemID);
 
-            if(item.userId !== userId) return res.status(400).json({message: 'you are not allowed'});
+            if(item.userID !== userID) return res.status(400).json({message: 'you are not allowed'});
 
-            const deletedItem = await cartService.delete(itemId);
+            const deletedItem = await cartService.delete(itemID);
 
             if(!deletedItem) return res.status(400).json({message: 'delete failed'});
 

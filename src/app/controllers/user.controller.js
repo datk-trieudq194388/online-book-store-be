@@ -13,10 +13,10 @@ class UserController {
             const body = req.body;
 
             const user = await userService.findUsername(body.username);
-            if(!user) return res.status(404).json('email or phone number doesnot exist');
+            if(!user) return res.status(404).json({message: 'email or phone number doesnot exist'});
 
             const validPwd = await bcrypt.compare(body.password, user.password);
-            if(!validPwd) return res.status(404).json('wrong password');
+            if(!validPwd) return res.status(404).json({message: 'wrong password'});
 
             const accessToken = Util.generateAccessToken(user);
             const refreshToken = Util.generateRefreshToken(user);
@@ -43,28 +43,20 @@ class UserController {
 
         try{
             const body = req.body;
-
-            // const emailCheck = await userService.checkEmail(body.email);
-            // if(emailCheck)
-            //     return res.status(400).json("Email existed");
         
             const phoneNumberCheck = await userService.checkPhoneNumber(body.phoneNumber);
             if(phoneNumberCheck)
-                return res.status(400).json("Phone number existed");
+                return res.status(400).json({message: 'phone number existed'});
 
             const hashedPwd = await Util.hashPwd(body.password);
             
             const user = await userService.create({
-                // email: body.email,
                 phoneNumber: body.phoneNumber,
                 password: hashedPwd,
                 role: Role.USER,
-                // name: body.name,
-                // gender: Util.formatGender(body.gender),
-                // address: body.address,
             });
 
-            if(!user) return res.status(400).json('cannot create user');
+            if(!user) return res.status(400).json({message: 'cannot create user'});
             // delete user.password; delete user.role;
 
             return res.json(new UserDTO(user));
@@ -78,9 +70,9 @@ class UserController {
     /** GET /user/profile */
     getProfile = async (req, res) => {
         try {
-            const userId = authz.requestUser(req, res);
+            const userID = authz.requestUser(req, res);
 
-            const user = await userService.findById(userId);
+            const user = await userService.findById(userID);
 
             return res.json(user);
 
@@ -95,18 +87,18 @@ class UserController {
 
         try {
             const body = req.body;
-            const userId = authz.requestUser(req, res);
+            const userID = authz.requestUser(req, res);
 
-            const user = await userService.findById(userId);
+            const user = await userService.findById(userID);
 
             
             const [oPwd, nPwd] = [body.oldPassword, body.newPassword];
 
             const validPwd = await bcrypt.compare(oPwd, user.password);
-            if(!validPwd) return res.status(404).json('wrong old password');
+            if(!validPwd) return res.status(404).json({message: 'wrong old password'});
 
             user.password = await Util.hashPwd(nPwd); 
-            const nUser = await userService.update(user);
+            const nUser = await userService.update(user._id, user);
 
             // delete nUser.password; delete nUser.role;
             return res.json(new UserDTO(nUser));
@@ -118,17 +110,17 @@ class UserController {
     }
 
     /** POST /account/update-profile */
+    // fix checking mail
     updateProfile = async(req, res) => {
 
         try {
             const body = req.body;
             delete body.password; delete body.role; delete body.phoneNumber;
-            const userId = authz.requestUser(req, res);
+            const userID = authz.requestUser(req, res);
 
-            body._id = userId;
             if(body.gender) body.gender = Util.formatGender(body.gender);
             
-            const user = await userService.update(body);
+            const user = await userService.update(userID, body);
             
             // delete user.password; delete user.role;
             return res.json(new UserDTO(user));

@@ -9,8 +9,8 @@ class CartService{
 
     }
 
-    findById = async(itemID) => {
-        const item = await Cart.findById(itemID);
+    findById = async(userID, titleID) => {
+        const item = await Cart.findById({userID: userID, titleID: titleID});
         return item ? item.toObject() : item;
     }
 
@@ -32,6 +32,12 @@ class CartService{
         return  nItem ? nItem.toObject() : nItem;
     }
     
+    update = async(itemID, data) => {
+        await Cart.findOneAndUpdate({_id: itemID}, data);
+        const nCart = await Cart.findById(itemID);
+        return nCart ? nCart.toObject() : nCart;
+
+    }
 }
 
 module.exports = new CartService;

@@ -33,7 +33,12 @@ const schema = new Schema(
             type: Date, default: null,
         },
         address: { 
-            type: String, trim: true, default: null,
+            type: [{
+                type: String,
+                trim: true,
+                required: true,
+            }], trim: true, default: null,
+            // ["Duong QT", "0123456789", "Ha Noi", "HBT", "Dong Tam", "357 Vong"]
         }
     },
     {

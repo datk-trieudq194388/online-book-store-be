@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const {ACCESS_SECRET_KEY, REFRESH_SECRET_KEY, BCRYPT_SALT} = require('../configs/config');
 const {Gender} = require('../app/models/user.model');
-const {Status} = require('../app/models/book.model');
+const {BStatus} = require('../app/models/book.model');
 
 class Util {
 
@@ -35,10 +35,10 @@ class Util {
     }
 
     formatStatus = (res, status) => {
-        if(status.toUpperCase() == Status.AVAILABLE)
-            return Status.AVAILABLE;
-        else if(status.toUpperCase() == Status.SOLD)
-            return Status.SOLD;
+        if(status.toUpperCase() == BStatus.AVAILABLE)
+            return BStatus.AVAILABLE;
+        else if(status.toUpperCase() == BStatus.SOLD)
+            return BStatus.SOLD;
         else return res.status(400).json({message: 'config failed'});
     }
     

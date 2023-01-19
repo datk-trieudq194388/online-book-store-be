@@ -1,4 +1,4 @@
-// const userService = require('../../services/user.service');
+const userService = require('../../services/user.service');
 const Util = require('../../utils/util');
 const bcrypt = require('bcrypt');
 const {Role, UserDTO} = require('../models/user.model');
@@ -28,8 +28,6 @@ class UserController {
                 sameSite: 'strict',
             });
 
-            // delete user.password; delete user.role;
-
             return res.json({user: new UserDTO(user), accessToken});
 
         }catch (err){
@@ -57,7 +55,6 @@ class UserController {
             });
 
             if(!user) return res.status(400).json({message: 'cannot create user'});
-            // delete user.password; delete user.role;
 
             return res.json(new UserDTO(user));
         }catch(err){
@@ -89,18 +86,17 @@ class UserController {
             const body = req.body;
             const userID = authz.requestUser(req, res);
 
-            const user = await userService.findById(userID);
-
+            //fix logic
+            const user = await userService.findUsername((await userService.findById(userID)).phoneNumber);
             
             const [oPwd, nPwd] = [body.oldPassword, body.newPassword];
-
+            console.log(user.password);
             const validPwd = await bcrypt.compare(oPwd, user.password);
             if(!validPwd) return res.status(404).json({message: 'wrong old password'});
 
             user.password = await Util.hashPwd(nPwd); 
             const nUser = await userService.update(user._id, user);
 
-            // delete nUser.password; delete nUser.role;
             return res.json(new UserDTO(nUser));
 
         }catch(err){
@@ -121,8 +117,7 @@ class UserController {
             if(body.gender) body.gender = Util.formatGender(body.gender);
             
             const user = await userService.update(userID, body);
-            
-            // delete user.password; delete user.role;
+
             return res.json(new UserDTO(user));
 
         }catch(err){

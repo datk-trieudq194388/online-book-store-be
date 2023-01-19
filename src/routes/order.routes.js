@@ -4,7 +4,8 @@ const authz = require('../middlewares/authorization');
 
 const orderController = require('../app/controllers/order.controller');
 
-router.post('/create', authz.verifyAdmin, orderController.createOrder);
+router.post('/create', authz.verifyUser, orderController.createOrder);
+router.post('/order-checkout', authz.verifyUser, orderController.checkoutOrder);
 router.post('/update', authz.verifyAdmin, orderController.updateOrder);
 router.get('/get-all', authz.verifyAdmin, orderController.getAllOrders);
 router.get('/detail/:id', authz.verifyAdmin, orderController.getOrder);

@@ -1,7 +1,7 @@
 const orderService = require('../../services/order.service');
 const cartService = require('../../services/cart.service');
-const userService = require('../../services/user.service')
-const bookService = require('../../services/book.service')
+const userService = require('../../services/user.service');
+const bookService = require('../../services/book.service');
 const titleService = require('../../services/title.service');
 const Util = require('../../utils/util');
 const authz = require('../../middlewares/authorization');
@@ -63,23 +63,61 @@ class OrderController{
 
     }
 
-    // fix selecting book when create order
-    createOrder = async(req, res) => {
+    checkoutOrder = async(req, res) => {
 
         try{
             const body = req.body;
             const userID = authz.requestUser(req, res);
-            body.userID = userID;
+            let cOrder = {
+                address: null,
+                items: [],
+                cartIDs: []
+            };
 
-            if(!(await titleService.checkExistedId(body.titleID)))
-                return res.status(400).json({message: 'title is not found'});
+            const user = await userService.findById(userID);
+
+            if(user.address) cOrder.address = user.address;
+
+            body.forEach(async item => {
+                cOrder.cartIDs.push(item.cartID);
+                delete item.cartID;
+                cOrder.items.push(item);
+            })
+
+            return res.json(cOrder);
+        }catch(err){
+            return Util.throwError(res, err);
+        }
+    }
+
+    createOrder = async(req, res) => {
+
+        try{
+            const body = req.body;
+            body.userID = authz.requestUser(req, res);
+            body.totalAmount = 0;
+         
+            const titlesInfo = body.items;
+            const cartIDs = body.cartIDs;
+
+            for(let i in titlesInfo){
+                const title = await titleService.findById(titlesInfo[i].titleID, false);
+                if(!title || title.quantity == 0 || titlesInfo[i].count > title.quantity)
+                    return res.status(500).json({message: 'an error occurred, please try again'});
+                
+                body.totalAmount += (titlesInfo[i].price * titlesInfo[i].count);
+            }
+
+            body.totalAmount += body.shippingCost;
 
             const order = await orderService.create(body);
 
             if(!order) return res.status(500).json({message: 'cannot create order'});
 
-            if( await cartService.delete(body.itemID))
-                console.log('delete from cart successfully');
+            cartIDs.forEach(async cartID => {
+                if(!(await cartService.delete(cartID))) 
+                    console.log('delete failed');
+            })
             
             return res.json(order);
         }catch(err){

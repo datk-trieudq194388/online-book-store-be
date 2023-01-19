@@ -6,8 +6,7 @@ class TitleController{
     getAllTitles = async(req, res) => {
         
         try {
-
-            const titles = await titleService.getAll({});
+            const titles = await titleService.getAll({}, false);
 
             for (let i in titles){
                 delete titles[i].trend;
@@ -80,7 +79,7 @@ class TitleController{
             const titleID = req.query.id;
             const currentTime = new Date();
 
-            const title = await titleService.update({_id: titleID, deletedAt: currentTime});
+            const title = await titleService.update(titleID, {deletedAt: currentTime});
 
             if(!title) return res.status(404).json({message: 'not found'});
 

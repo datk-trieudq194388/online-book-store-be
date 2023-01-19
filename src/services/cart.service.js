@@ -9,13 +9,13 @@ class CartService{
 
     }
 
-    findById = async(userID, titleID) => {
-        const item = await Cart.findById({userID: userID, titleID: titleID});
+    findById = async(itemID) => {
+        const item = await Cart.findById(itemID);
         return item ? item.toObject() : item;
     }
 
-    findExistedTitle = async(item) => {
-        const cItem = await Cart.findOne(item);
+    findExistedTitle = async(userID, titleID) => {
+        const cItem = await Cart.findOne({userID: userID, titleID: titleID});
         return cItem ? cItem.toObject() : cItem;
     }
 

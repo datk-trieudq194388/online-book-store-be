@@ -1,6 +1,6 @@
 const cartService = require('../../services/cart.service');
 const titleService = require('../../services/title.service');
-const authorization = require('../../middlewares/authorization');
+const authz = require('../../middlewares/authorization');
 const Util = require('../../utils/util');
 
 class CartController{
@@ -8,14 +8,15 @@ class CartController{
     getCart = async(req, res) => {
 
         try {
-            const userID = authorization.requestUser(req, res);
+            const userID = authz.requestUser(req, res);
 
             const carts = await cartService.getAll(userID);
 
             for (let i in carts){
                 carts[i] = carts[i].toObject();
-                const title = await titleService.findById(carts[i].titleID);
+                const title = await titleService.findById(carts[i].titleID, true);
                 carts[i]['title'] = {
+                    _id: title._id,
                     name: title.name,
                     price: title.price,
                     image: title.image,
@@ -23,6 +24,13 @@ class CartController{
                     deletedAt: title.deletedAt,
                 }
                 delete carts[i].titleID;
+
+                // re-check count of items
+                if(carts[i].count > title.quantity) {
+                    carts[i].count = title.quantity;
+                    await cartService.update(carts[i]._id, {count: carts[i].count});
+                }
+                    
             }
 
             return res.json(carts);
@@ -37,20 +45,28 @@ class CartController{
 
         try {
             let body = req.body;
-            const userID = authorization.requestUser(req, res);
-            body['userID'] = userID;
+            body.userID = authz.requestUser(req, res);
+            let nItem;
             
-            if(!await titleService.checkExistedId(body.titleID)) 
+            const title = await titleService.findById(body.titleID, false);
+            if(!title) 
                 return res.status(400).json({message: 'the title is not existed'});
 
             const item = await cartService.findExistedTitle(body.userID, body.titleID);
-            if(item){
-                item['count'] += body.count;
-                if(item.isChecked === false) item['isChecked'] = body.isChecked;
-                body = item;
-            }
 
-            const nItem = await cartService.create(body);
+            let flag = false;
+            if(item){
+                body.count += item.count;
+                if(item.isChecked === true) body.isChecked = true;
+                flag = true;
+            }
+            
+            // check count
+            if(body.count > title.quantity)
+                return res.status(400).json({message: `${body.count} items are not available`});
+            
+            if(flag) nItem = await cartService.update(item._id, body);
+            else nItem = await cartService.create(body);  
 
             if(!nItem) return res.status(500).json({message: 'cannot add to cart'});
             return res.json(nItem);
@@ -65,16 +81,24 @@ class CartController{
 
         try {
             const itemID = req.query.id;
-            const body = req.body;
-            const userID = authorization.requestUser(req, res);
-          
+            const body = req.body; delete body.titleID;
+            const userID = authz.requestUser(req, res);
+           
             const item = await cartService.findById(itemID);
+            
+            if(item.userID != userID) return res.status(400).json({message: 'you are not allowed'});
 
-            if(item.userID !== userID) return res.status(400).json({message: 'you are not allowed'});
+            const title = await titleService.findById(item.titleID, true);
+            if(!title) 
+                return res.status(400).json({message: 'the title is not existed'});
+
+            // check count
+            if(body.count > title.quantity)
+                return res.status(400).json({message: `${body.count} items are not available`});
 
             const nItem = await cartService.update(itemID, body);
 
-            if(!nItem) return res.status(400).json({message: 'update failed'});
+            if(!nItem) return res.status(500).json({message: 'update failed'});
 
             return res.json(nItem);
         }catch(err){
@@ -87,15 +111,15 @@ class CartController{
 
         try {
             const itemID = req.query.id;
-            const userID = authorization.requestUser(req, res);
+            const userID = authz.requestUser(req, res);
 
             const item = await cartService.findById(itemID);
 
-            if(item.userID !== userID) return res.status(400).json({message: 'you are not allowed'});
+            if(item.userID != userID) return res.status(400).json({message: 'you are not allowed'});
 
             const deletedItem = await cartService.delete(itemID);
 
-            if(!deletedItem) return res.status(400).json({message: 'delete failed'});
+            if(!deletedItem) return res.status(500).json({message: 'delete failed'});
 
             return res.json({message: 'delete successfully'});
 

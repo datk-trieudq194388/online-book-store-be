@@ -13,10 +13,10 @@ const schema = new Schema(
             type: Number, required: true, default: 0,
         },
         authors: { 
-            type: Array[String], required: true, trim: true,
+            type: [String], required: true, trim: true,
         },
         translators: { 
-            type: Array[String], trim: true, default: null
+            type: [String], trim: true, default: null
         },
         publisher: {
             type: String, required: true, trim: true
@@ -28,13 +28,10 @@ const schema = new Schema(
             type: Number, required: true,
         },
         size: {
-            type: Array, required: true,
+            type: [Number], required: true,
         },
-        categoryIDs: {
-            type: Array[{
-                type: Schema.Types.ObjectId,
-                ref: "Category"
-            }], required: true, trim: true,
+        category: {
+            type: [String], required: true, trim: true,
         },
         description: { 
             type: String, required: true, trim: true,
@@ -68,13 +65,14 @@ class TitleDTO {
     pYear;
     page;
     size;
-    categories;
+    category;
     quantity;
     description;
     image;
     slug;
     createdAt;
     updatedAt;
+    deletedAt;
 
     constructor (data){
         this._id = data._id;
@@ -86,13 +84,14 @@ class TitleDTO {
         this.pYear = data.pYear;
         this.page = data.page;
         this.size = data.size;
-        this.categories = data.categories;
+        this.category = data.category;
         this.quantity = data.quantity;
         this.description = data.description;
         this.image = data.image;
         this.slug = data.slug;
         this.createdAt = data.createdAt;
         this.updatedAt = data.updatedAt;
+        this.deletedAt = data.deletedAt;
     }
 }
 

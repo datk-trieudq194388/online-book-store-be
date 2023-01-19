@@ -3,9 +3,9 @@ const {Book, BStatus} = require('../app/models/book.model');
 
 class TitleService{
     
-    getAll = async(query) => {
+    getAll = async(query, containingDeletedItems) => {
     
-        query['deletedAt'] = null;
+        if(!containingDeletedItems) query['deletedAt'] = null;
 
         const titles = await Title.find(query);
 
@@ -29,8 +29,10 @@ class TitleService{
 
     }
 
-    findById = async(titleID) => {
-        let title = await Title.findOne({_id: titleID, deletedAt: null});
+    findById = async(titleID, containingDeletedItems) => {
+        let title;
+        if(containingDeletedItems) title = await Title.findOne({_id: titleID});
+        else title = await Title.findOne({_id: titleID, deletedAt: null});
 
         if(!title) return title;
 

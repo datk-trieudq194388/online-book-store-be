@@ -43,7 +43,7 @@ class BookController{
             const body = req.body;
             delete body.status;
 
-            if(!(await titleService.findById(body.titleID)))
+            if(!(await titleService.findById(body.titleID, false)))
                 return res.status(400).json({message: 'title is not found'});
 
             const nBook = await bookService.create({titleID: body.titleID});

@@ -7,10 +7,10 @@ const userController = require('../app/controllers/user.controller');
 router.post('/login', userController.login);
 router.post('/create', userController.create);
 
-router.get('/profile', userController.getProfile);
-router.post('/update-profile', userController.updateProfile);
-router.post('/update-password', userController.updatePassword);
-router.get('/logout', userController.logout);
+router.get('/profile', authz.verifyToken, userController.getProfile);
+router.post('/update-profile', authz.verifyToken, userController.updateProfile);
+router.post('/update-password', authz.verifyToken, userController.updatePassword);
+router.get('/logout', authz.verifyToken, userController.logout);
 
 router.get('/get-all-users', authz.verifyAdmin, userController.getAllUsers);
 // router.get('/lock-user', authz.verifyAdmin, userController.lockUser);

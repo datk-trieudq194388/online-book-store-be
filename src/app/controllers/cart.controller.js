@@ -1,6 +1,5 @@
 const cartService = require('../../services/cart.service');
 const titleService = require('../../services/title.service');
-const authz = require('../../middlewares/authorization');
 const Util = require('../../utils/util');
 
 class CartController{
@@ -8,7 +7,7 @@ class CartController{
     getCart = async(req, res) => {
 
         try {
-            const userID = authz.requestUser(req, res);
+            const userID = req.user._id;
 
             const carts = await cartService.getAll(userID);
 
@@ -45,7 +44,7 @@ class CartController{
 
         try {
             let body = req.body;
-            body.userID = authz.requestUser(req, res);
+            body.userID = req.user._id;
             let nItem;
             
             const title = await titleService.findById(body.titleID, false);
@@ -82,7 +81,7 @@ class CartController{
         try {
             const itemID = req.query.id;
             const body = req.body; delete body.titleID;
-            const userID = authz.requestUser(req, res);
+            const userID = req.user._id;
            
             const item = await cartService.findById(itemID);
             
@@ -111,7 +110,7 @@ class CartController{
 
         try {
             const itemID = req.query.id;
-            const userID = authz.requestUser(req, res);
+            const userID = req.user._id;
 
             const item = await cartService.findById(itemID);
 

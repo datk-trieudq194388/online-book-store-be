@@ -6,6 +6,7 @@ const db_uri = `mongodb+srv://${DB_USER}:${DB_PWD}@cluster0.j0fbt91.mongodb.net/
 async function connect(){
 
     try{
+        mongoose.set('strictQuery', false);
         await mongoose.connect(db_uri);
         console.log('Connect successfully!');
     }catch(err){

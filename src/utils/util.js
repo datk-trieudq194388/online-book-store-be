@@ -8,7 +8,7 @@ class Util {
 
     generateAccessToken = (data) => {
         return jwt.sign({
-            id: data._id,
+            _id: data._id,
             email: data.email,
             phoneNumber: data.phoneNumber,
             name: data.name,
@@ -18,12 +18,21 @@ class Util {
 
     generateRefreshToken = (data) => {
         return jwt.sign({
-            id: data._id,
+            _id: data._id,
             email: data.email,
             phoneNumber: data.phoneNumber,
             name: data.name,
             role: data.role,
-        }, REFRESH_SECRET_KEY, { expiresIn: "3d" });
+        }, REFRESH_SECRET_KEY, { expiresIn: 365*24*60*60 });
+    }
+
+    setCookie = (res, cookieName, cookieData) => {
+        res.cookie(cookieName, cookieData, {
+            httpOnly: true,
+            secure: false, // true if in deployment env
+            path: '/',
+            sameSite: 'strict',
+        });
     }
 
     formatGender = (gender) => {
@@ -41,15 +50,6 @@ class Util {
             return BStatus.SOLD;
         else return res.status(400).json({message: 'config failed'});
     }
-    
-    // formatReturnedDate = (time, startedDate) => {
-    //     const week = 7*24*60*60*1000;
-    //     if(time[1] === 'w')
-    //         if(time[0] > 4) 
-    //             return startedDate.getTime() + 4*week; // default is 4 weeks
-    //         else return startedDate.getTime() + time[0]*week;
-    //     else return startedDate.getTime() + week; // default is 1 week
-    // }
 
     hashPwd = async (pwd) => {
         const salt = await bcrypt.genSalt(BCRYPT_SALT);

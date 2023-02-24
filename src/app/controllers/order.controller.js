@@ -4,7 +4,6 @@ const userService = require('../../services/user.service');
 const bookService = require('../../services/book.service');
 const titleService = require('../../services/title.service');
 const Util = require('../../utils/util');
-const authz = require('../../middlewares/authorization');
 
 class OrderController{
     
@@ -29,7 +28,7 @@ class OrderController{
     getAllMyOrders = async(req, res) => {
         
         try {
-            const userID = authz.requestUser(req, res);
+            const userID = req.user._id;
 
             let allOrders = await orderService.getAll(userID);
 
@@ -67,7 +66,7 @@ class OrderController{
 
         try{
             const body = req.body;
-            const userID = authz.requestUser(req, res);
+            const userID = req.user._id;
             let cOrder = {
                 address: null,
                 items: [],
@@ -94,7 +93,7 @@ class OrderController{
 
         try{
             const body = req.body;
-            body.userID = authz.requestUser(req, res);
+            body.userID = req.user._id;
             body.totalAmount = 0;
          
             const titlesInfo = body.items;

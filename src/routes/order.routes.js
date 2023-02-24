@@ -10,8 +10,8 @@ router.post('/update', authz.verifyAdmin, orderController.updateOrder);
 router.get('/get-all', authz.verifyAdmin, orderController.getAllOrders);
 router.get('/detail/:id', authz.verifyAdmin, orderController.getOrder);
 
-router.get('/my-orders', orderController.getAllMyOrders);
-router.get('/my-orders/detail/:id', orderController.getOrder);
+router.get('/my-orders', authz.verifyToken, orderController.getAllMyOrders);
+router.get('/my-orders/detail/:id', authz.verifyToken, orderController.getOrder);
 
 
 module.exports = router;

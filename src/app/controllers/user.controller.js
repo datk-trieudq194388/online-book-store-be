@@ -2,7 +2,7 @@ const userService = require('../../services/user.service');
 const Util = require('../../utils/util');
 const bcrypt = require('bcrypt');
 const {Role, UserDTO} = require('../models/user.model');
-const authz = require('../../middlewares/authorization');
+const redis = require('../../configs/db/redis')
 
 class UserController {
     
@@ -21,11 +21,11 @@ class UserController {
             const accessToken = Util.generateAccessToken(user);
             const refreshToken = Util.generateRefreshToken(user);
 
-            res.cookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                secure: false, // true if in deployment env
-                path: '/',
-                sameSite: 'strict',
+            Util.setCookie(res, 'refreshToken', refreshToken);
+
+            redis.set(user._id, refreshToken, 'EX', 365*24*60*60, (err, reply) => {
+              if (err) throw err;
+              console.log(reply);
             });
 
             return res.json({user: new UserDTO(user), accessToken});
@@ -67,7 +67,7 @@ class UserController {
     /** GET /user/profile */
     getProfile = async (req, res) => {
         try {
-            const userID = authz.requestUser(req, res);
+            const userID = req.user._id;
 
             const user = await userService.findById(userID);
 
@@ -84,7 +84,7 @@ class UserController {
 
         try {
             const body = req.body;
-            const userID = authz.requestUser(req, res);
+            const userID = req.user._id;
 
             //fix logic
             const user = await userService.findUsername((await userService.findById(userID)).phoneNumber);
@@ -112,7 +112,7 @@ class UserController {
         try {
             const body = req.body;
             delete body.password; delete body.role; delete body.phoneNumber;
-            const userID = authz.requestUser(req, res);
+            const userID = req.user._id;
 
             if(body.gender) body.gender = Util.formatGender(body.gender);
             
@@ -129,7 +129,24 @@ class UserController {
     /** GET /account/logout */
     logout(req, res){
 
-        res.json({content: 'logout'});
+        try {
+            const userID = req.user._id;
+
+            res.clearCookie('refreshToken');
+
+            redis.del(userID, (err, reply) => {
+                if(err) throw err;
+
+                if(reply == 1)
+                    console.log('refreshToken has been deleted');
+                else console.log('key does not exist');
+            })
+
+            return res.json({message: 'log out successfully'});
+
+        }catch(err){
+            return Util.throwError(res, err);
+        }
 
     }
 

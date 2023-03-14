@@ -12,11 +12,11 @@ class UserController {
         try{
             const body = req.body;
 
-            const user = await userService.findUsername(body.username);
-            if(!user) return res.status(404).json({message: 'email or phone number doesnot exist'});
+            const user = await userService.findByPhoneNumber(body.phoneNumber);
+            if(!user) return res.status(401).json({message: 'phone number doesnot exist'});
 
             const validPwd = await bcrypt.compare(body.password, user.password);
-            if(!validPwd) return res.status(404).json({message: 'wrong password'});
+            if(!validPwd) return res.status(401).json({message: 'wrong password'});
 
             const accessToken = Util.generateAccessToken(user);
             const refreshToken = Util.generateRefreshToken(user);
@@ -28,7 +28,7 @@ class UserController {
               console.log(reply);
             });
 
-            return res.json({user: new UserDTO(user), accessToken});
+            return res.json({user: new UserDTO(user), accessToken, refreshToken});
 
         }catch (err){
             return Util.throwError(res, err);
@@ -86,11 +86,10 @@ class UserController {
             const body = req.body;
             const userID = req.user._id;
 
-            //fix logic
-            const user = await userService.findUsername((await userService.findById(userID)).phoneNumber);
+            const user = await userService.findById(userID, false);
             
             const [oPwd, nPwd] = [body.oldPassword, body.newPassword];
-            console.log(user.password);
+            // console.log(user.password);
             const validPwd = await bcrypt.compare(oPwd, user.password);
             if(!validPwd) return res.status(404).json({message: 'wrong old password'});
 

@@ -12,7 +12,7 @@ const verifyAsync = promisify(jwt.verify);
 const Authorization = {
 
     verifyToken : (req, res, next) => {
-        const token = req.rawHeaders[1];
+        const token = req.headers.authorization;
       
         if(token){
             const accessToken = token.split(' ')[1];

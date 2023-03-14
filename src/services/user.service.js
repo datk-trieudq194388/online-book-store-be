@@ -40,22 +40,19 @@ class UserService{
     }
 
     // dont need dto
-    findUsername = async(username) => {
+    findByPhoneNumber = async(phoneNumber) => {
 
-        const user = await User.findOne({$or:[
-            {email: username},
-            {phoneNumber: username}
-        ]});
+        const user = await User.findOne({phoneNumber: phoneNumber});
 
         return user ? user.toObject() : user;
 
     }
 
-    findById = async(userID) => {
+    findById = async(userID, dto = true) => {
 
         const user = await User.findById(userID);
         
-        return user ? new UserDTO(user) : user;
+        return user ? (dto ? new UserDTO(user) : user.toObject()) : user;
 
     }
 

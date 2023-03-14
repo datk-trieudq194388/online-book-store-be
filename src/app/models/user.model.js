@@ -23,7 +23,10 @@ const schema = new Schema(
         role: { 
             type: String, required: true, trim: true,
         },
-        name: {
+        firstname: {
+            type: String, trim: true, default: null,
+        },
+        lastname: {
             type: String, trim: true, default: null,
         },
         gender: {
@@ -52,7 +55,8 @@ class UserDTO {
     _id;
     email;
     phoneNumber;
-    name;
+    firstname;
+    lastname;
     gender;
     birthday;
     address;
@@ -63,7 +67,8 @@ class UserDTO {
         this._id = user._id;
         this.email = user.email;
         this.phoneNumber = user.phoneNumber;
-        this.name = user.name;
+        this.firstname = user.firstname;
+        this.lastname = user.lastname;
         this.gender = user.gender;
         this.birthday = user.birthday;
         this.address = user.address;

@@ -29,10 +29,11 @@ const Authorization = {
 
     verifyRefreshToken : async (req, res, next) => {
        
-        const refToken = req.cookies?.refreshToken;
+        let refToken = req.headers.authorization;
        
         if(refToken){
             try {
+                refToken = refToken.split(' ')[1];
                 const user = await verifyAsync(refToken, REFRESH_SECRET_KEY)
                 const reply = await getAsync(user._id);
         

@@ -13,7 +13,7 @@ class Util {
             phoneNumber: data.phoneNumber,
             name: data.name,
             role: data.role,
-        }, ACCESS_SECRET_KEY, { expiresIn: "3d" });
+        }, ACCESS_SECRET_KEY, { expiresIn: 3*24*60 });
     }
 
     generateRefreshToken = (data) => {
@@ -23,13 +23,13 @@ class Util {
             phoneNumber: data.phoneNumber,
             name: data.name,
             role: data.role,
-        }, REFRESH_SECRET_KEY, { expiresIn: 365*24*60*60 });
+        }, REFRESH_SECRET_KEY, { expiresIn: 30*24*60*60 });
     }
 
     setCookie = (res, cookieName, cookieData) => {
         res.cookie(cookieName, cookieData, {
-            httpOnly: true,
-            secure: false, // true if in deployment env
+            httpOnly: false, // fix later
+             secure: false, // true if in deployment env
             path: '/',
             sameSite: 'strict',
         });

@@ -23,7 +23,7 @@ class UserController {
 
             Util.setCookie(res, 'refreshToken', refreshToken);
 
-            redis.set(user._id, refreshToken, 'EX', 365*24*60*60, (err, reply) => {
+            redis.set(user._id, refreshToken, 'EX', 30*24*60*60, (err, reply) => {
               if (err) throw err;
               console.log(reply);
             });
@@ -44,7 +44,7 @@ class UserController {
         
             const phoneNumberCheck = await userService.checkPhoneNumber(body.phoneNumber);
             if(phoneNumberCheck)
-                return res.status(400).json({message: 'phone number existed'});
+                return res.status(409).json({message: 'phone number existed'});
 
             const hashedPwd = await Util.hashPwd(body.password);
             
@@ -54,9 +54,21 @@ class UserController {
                 role: Role.USER,
             });
 
-            if(!user) return res.status(400).json({message: 'cannot create user'});
+            if(!user) return res.status(500).json({message: 'cannot create user'});
+            
+            // login after register
+            const accessToken = Util.generateAccessToken(user);
+            const refreshToken = Util.generateRefreshToken(user);
 
-            return res.json(new UserDTO(user));
+            Util.setCookie(res, 'refreshToken', refreshToken);
+
+            redis.set(user._id, refreshToken, 'EX', 30*24*60*60, (err, reply) => {
+              if (err) throw err;
+              console.log(reply);
+            });
+
+
+            return res.json({user: new UserDTO(user), accessToken, refreshToken});
         }catch(err){
             return Util.throwError(res, err);
         }
@@ -105,12 +117,11 @@ class UserController {
     }
 
     /** POST /account/update-profile */
-    // fix checking mail
     updateProfile = async(req, res) => {
 
         try {
             const body = req.body;
-            delete body.password; delete body.role; delete body.phoneNumber;
+            delete body.password; delete body.role; delete body._id;
             const userID = req.user._id;
 
             if(body.gender) body.gender = Util.formatGender(body.gender);

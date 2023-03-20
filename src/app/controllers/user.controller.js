@@ -1,7 +1,8 @@
 const userService = require('../../services/user.service');
 const Util = require('../../utils/util');
 const bcrypt = require('bcrypt');
-const {Role, UserDTO} = require('../models/user.model');
+const { UserDTO } = require('../models/user.model');
+const { Role } = require('../../configs/global')
 const redis = require('../../configs/db/redis')
 
 class UserController {
@@ -79,9 +80,10 @@ class UserController {
     /** GET /user/profile */
     getProfile = async (req, res) => {
         try {
+            const filter = req.query.f ?? '';
             const userID = req.user._id;
 
-            const user = await userService.findById(userID);
+            const user = await userService.findById(userID, true, filter.split(';'));
 
             return res.json(user);
 

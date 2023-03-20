@@ -1,10 +1,10 @@
-const {Cart} = require('../app/models/cart.model');
+const Cart = require('../app/models/cart.model');
 
 class CartService{
     
     getAll = async(userID) => {
     
-        const items = await Cart.find({userId: userID});
+        const items = await Cart.find({userID: userID}).sort({createdAt: -1});
         return items;
 
     }
@@ -36,6 +36,12 @@ class CartService{
         await Cart.findOneAndUpdate({_id: itemID}, data);
         const nCart = await Cart.findById(itemID);
         return nCart ? nCart.toObject() : nCart;
+
+    }
+
+    checkAll = async(userID, checked) => {
+        const nCart = await Cart.updateMany({userID: userID}, {isChecked: checked});
+        return nCart; //? nCart.toObject() : nCart;
 
     }
 }

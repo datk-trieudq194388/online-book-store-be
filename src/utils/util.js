@@ -1,8 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const {ACCESS_SECRET_KEY, REFRESH_SECRET_KEY, BCRYPT_SALT} = require('../configs/config');
-const {Gender} = require('../app/models/user.model');
-const {BStatus} = require('../app/models/book.model');
+const {Gender, BookStatus} = require('../configs/global');
 
 class Util {
 
@@ -36,18 +35,20 @@ class Util {
     }
 
     formatGender = (gender) => {
-        if(gender.toUpperCase() === Gender.MALE) 
+        if(gender == Gender.MALE) 
             return Gender.MALE;
-        else if(gender.toUpperCase() === Gender.FEMALE) 
+        else if(gender == Gender.FEMALE) 
             return Gender.FEMALE;
-        else return Gender.NONE;
+        else return Gender.OTHER;
     }
 
     formatStatus = (res, status) => {
-        if(status.toUpperCase() == BStatus.AVAILABLE)
-            return BStatus.AVAILABLE;
-        else if(status.toUpperCase() == BStatus.SOLD)
-            return BStatus.SOLD;
+        if(status == BookStatus.AVAILABLE)
+            return BookStatus.AVAILABLE;
+        else if(status == BookStatus.SOLD)
+            return BookStatus.SOLD;
+        else if(status == BookStatus.PENDING)
+            return BookStatus.PENDING;
         else return res.status(400).json({message: 'config failed'});
     }
 

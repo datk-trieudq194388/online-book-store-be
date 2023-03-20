@@ -1,9 +1,6 @@
 const mongoose = require('mongoose');
+const { BookStatus } = require('../../configs/global');
 const Schema = mongoose.Schema;
-
-const BStatus = {
-    AVAILABLE: "A", SOLD: "S"
-}
 
 const schema = new Schema(
     {
@@ -11,7 +8,7 @@ const schema = new Schema(
             type: Schema.Types.ObjectId, required: true, trim: true, ref: 'Title'
         },
         status: {
-            type: String, required: true, trim: true, default: BStatus.AVAILABLE,
+            type: String, required: true, trim: true, default: BookStatus.AVAILABLE,
         }
     },
     {
@@ -21,4 +18,4 @@ const schema = new Schema(
 
 const Book = mongoose.model('Book', schema);
 
-module.exports = { Book, BStatus };
+module.exports = Book;

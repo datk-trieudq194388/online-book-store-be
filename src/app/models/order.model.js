@@ -1,9 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-
-const OStatus = {
-    PENDING: "PE", PROCESSING: "PR", COMPLETED: "CO", CANCLED: "CA" 
-}
+const { OrderStatus } = require('../../configs/global') 
 
 const schema = new Schema(
     {
@@ -46,7 +43,7 @@ const schema = new Schema(
             type: Schema.Types.ObjectId, require: true, trim: true,
         },
         status: {
-            type: String, require: true, default: OStatus.PENDING,
+            type: String, require: true, default: OrderStatus.PENDING,
         },
         shippingCost: {
             type: Number, required: true, default: 0,
@@ -72,4 +69,4 @@ const schema = new Schema(
 
 const Order = mongoose.model('Order', schema);
 
-module.exports = { Order };
+module.exports = Order;

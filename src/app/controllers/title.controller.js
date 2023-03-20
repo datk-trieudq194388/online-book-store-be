@@ -2,6 +2,22 @@ const titleService = require('../../services/title.service');
 const Util = require('../../utils/util');
 
 class TitleController{
+
+    getUserTitles = async(req, res) => {
+        try {
+            const sortType = req.query.sortType ?? 0;
+            const pageSize = req.query.pageSize ?? 12;
+            const page = req.query.page ?? 1;
+
+            console.log(pageSize, page)
+            const titles = await titleService.getUserTitles(sortType, pageSize, page);
+            
+            return res.json(titles);
+
+        }catch(err){
+            return Util.throwError(res, err);
+        }
+    }
     
     getAllTitles = async(req, res) => {
         
@@ -24,6 +40,7 @@ class TitleController{
     getTitle = async(req, res) => {
 
         try {
+
             const titleSlug = req.params.slug;
 
             const title = await titleService.findBySlug(titleSlug);

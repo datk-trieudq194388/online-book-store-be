@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { promisify } = require("util");
 const {ACCESS_SECRET_KEY, REFRESH_SECRET_KEY} = require('../configs/config');
-const {Role} = require('../app/models/user.model');
+const { Role } = require('../configs/global');
 const redis = require('../configs/db/redis');
 const Util = require('../utils/util');
 
@@ -54,7 +54,7 @@ const Authorization = {
 
     verifyAdmin : (req, res, next) => {
         Authorization.verifyToken(req, res, () => {
-            if(req.user.role === Role.ADMIN){
+            if(req.user.role == Role.ADMIN){
                 return next();
             }
 
@@ -64,7 +64,7 @@ const Authorization = {
 
     verifyUser : (req, res, next) => {
         Authorization.verifyToken(req, res, () => {
-            if(req.user.role === Role.USER){
+            if(req.user.role == Role.USER){
                 return next();
             }
 

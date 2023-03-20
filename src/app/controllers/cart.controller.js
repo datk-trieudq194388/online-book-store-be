@@ -19,15 +19,20 @@ class CartController{
                     name: title.name,
                     price: title.price,
                     image: title.image,
+                    slug: title.slug,
                     quantity: title.quantity,
                     deletedAt: title.deletedAt,
                 }
                 delete carts[i].titleID;
 
-                // re-check count of items
-                if(carts[i].count > title.quantity) {
-                    carts[i].count = title.quantity;
+                // re-check count of items and delete if out of stock
+                if(title.quantity == 0){
+                    await cartService.delete(carts[i]._id)
+                    carts.slice(i, 1);
+                }
+                else if(carts[i].count > title.quantity) {
                     await cartService.update(carts[i]._id, {count: carts[i].count});
+                    carts[i].count = title.quantity;
                 }
                     
             }
@@ -49,7 +54,7 @@ class CartController{
             
             const title = await titleService.findById(body.titleID, false);
             if(!title) 
-                return res.status(400).json({message: 'the title is not existed'});
+                return res.status(404).json({message: 'the title is not existed'});
 
             const item = await cartService.findExistedTitle(body.userID, body.titleID);
 
@@ -84,22 +89,40 @@ class CartController{
             const userID = req.user._id;
            
             const item = await cartService.findById(itemID);
-            
             if(item.userID != userID) return res.status(400).json({message: 'you are not allowed'});
 
-            const title = await titleService.findById(item.titleID, true);
-            if(!title) 
-                return res.status(400).json({message: 'the title is not existed'});
+            if(body.count){
+                const title = await titleService.findById(item.titleID, true);
+                if(!title) 
+                    return res.status(400).json({message: 'the title is not existed'});
 
-            // check count
-            if(body.count > title.quantity)
-                return res.status(400).json({message: `${body.count} items are not available`});
+                // check count
+                if(body.count > title.quantity)
+                    return res.status(400).json({message: `${body.count} items are not available`});
+            }
 
             const nItem = await cartService.update(itemID, body);
 
             if(!nItem) return res.status(500).json({message: 'update failed'});
 
             return res.json(nItem);
+        }catch(err){
+            return Util.throwError(res, err);
+        }
+
+    }
+
+    checkAll = async(req, res) => {
+
+        try {
+            const checked = req.query.checked ?? false;
+            const userID = req.user._id;
+
+            const nCart = await cartService.checkAll(userID, checked == 'true' ? true : false);
+
+            if(!nCart) return res.status(500).json({message: 'update failed'});
+
+            return res.json(nCart);
         }catch(err){
             return Util.throwError(res, err);
         }

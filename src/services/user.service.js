@@ -48,9 +48,9 @@ class UserService{
 
     }
 
-    findById = async(userID, dto = true) => {
-
-        const user = await User.findById(userID);
+    findById = async(userID, dto = true, filter = []) => {
+        const fields = filter.join(' ');
+        const user = await User.findById(userID).select(fields);
         
         return user ? (dto ? new UserDTO(user) : user.toObject()) : user;
 

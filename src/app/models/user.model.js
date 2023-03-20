@@ -1,13 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-
-const Role = {
-    USER: 'U', ADMIN: 'A'
-}
-
-const Gender = {
-    MALE: "M", FEMALE: "F", NONE: "N"
-}
+const { Gender } = require('../../configs/global')
 
 const schema = new Schema(
     {
@@ -30,7 +23,7 @@ const schema = new Schema(
             type: String, trim: true, default: null,
         },
         gender: {
-            type: String, trim: true, default: Gender.NONE,
+            type: Number, trim: true, default: Gender.OTHER,
         },
         birthday: { 
             type: Date, default: null,
@@ -77,4 +70,4 @@ class UserDTO {
     };
 }
 
-module.exports = { User, UserDTO, Role, Gender};
+module.exports = { User, UserDTO };

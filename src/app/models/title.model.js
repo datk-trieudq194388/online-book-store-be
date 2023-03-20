@@ -39,6 +39,9 @@ const schema = new Schema(
         trend: { 
             type: Number, required: true, default: 0,
         },
+        sold: { 
+            type: Number, required: true, default: 0,
+        },
         image: { 
             type: String, required: true, default: "",
         },

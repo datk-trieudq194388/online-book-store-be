@@ -2,9 +2,18 @@ const Cart = require('../app/models/cart.model');
 
 class CartService{
     
-    getAll = async(userID) => {
+    // getAll = async(userID) => {
     
-        const items = await Cart.find({userID: userID}).sort({createdAt: -1});
+    //     const items = await Cart.find({userID: userID}).sort({createdAt: -1});
+    //     return items;
+
+    // }
+
+    getAll = async(userID, isChecked = false) => {
+        let items;
+        if(isChecked)
+            items = await Cart.find({userID: userID, isChecked: true}).sort({createdAt: -1});
+        else items = await Cart.find({userID: userID}).sort({createdAt: -1});
         return items;
 
     }

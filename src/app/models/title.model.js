@@ -9,10 +9,16 @@ const schema = new Schema(
         name: {
             type: String, required: true, trim: true,
         },
+        name_en: {
+            type: String, required: true, trim: true,
+        },
         price: {
             type: Number, required: true, default: 0,
         },
         authors: { 
+            type: [String], required: true, trim: true,
+        },
+        authors_en: { 
             type: [String], required: true, trim: true,
         },
         translators: { 
@@ -31,7 +37,7 @@ const schema = new Schema(
             type: [Number], required: true,
         },
         category: {
-            type: [String], required: true, trim: true,
+            type: [Number], required: true,
         },
         description: { 
             type: String, required: true, trim: true,

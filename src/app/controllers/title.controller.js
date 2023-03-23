@@ -8,9 +8,29 @@ class TitleController{
             const sortType = req.query.sortType ?? 0;
             const pageSize = req.query.pageSize ?? 12;
             const page = req.query.page ?? 1;
+            const status = req.query.status ?? 0;
 
-            console.log(pageSize, page)
-            const titles = await titleService.getUserTitles(sortType, pageSize, page);
+            // console.log(pageSize, page, status)
+            const titles = await titleService.getUserTitles(sortType, pageSize, page, status);
+            
+            return res.json(titles);
+
+        }catch(err){
+            return Util.throwError(res, err);
+        }
+    }
+
+    getUserSearchingTitles = async(req, res) => {
+        try {
+            const sortType = req.query.sortType ?? 0;
+            const pageSize = req.query.pageSize ?? 12;
+            const page = req.query.page ?? 1;
+            const status = req.query.status ?? 0;
+            const body = req.body;
+            console.log(body);
+
+            console.log(sortType, pageSize, page, status)
+            const titles = await titleService.getUserSearchingTitles(sortType, pageSize, page, status, body);
             
             return res.json(titles);
 
@@ -43,9 +63,15 @@ class TitleController{
 
             const titleSlug = req.params.slug;
 
-            const title = await titleService.findBySlug(titleSlug);
+            let title = await titleService.findBySlug(titleSlug, false);
 
             if(!title) return res.status(404).json({message: "not found"});
+
+            // console.log(title)
+            // console.log(title.trend + 1)
+            // return res.json(title);
+            // increase trending
+            title = await titleService.update(title._id, {trend: title.trend + 1});
 
             return res.json(title);
 
@@ -59,6 +85,12 @@ class TitleController{
 
         try {
             const body = req.body;
+            body['name_en'] = Util.removeVietnameseTones(body.name);
+            let authors_en = [];
+            body.authors?.forEach(author => {
+                authors_en.push(Util.removeVietnameseTones(author))
+            });
+            body['authors_en'] = authors_en;
         
             const title = await titleService.create(body);
 

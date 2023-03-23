@@ -9,6 +9,7 @@ router.post('/update', authz.verifyAdmin, titleController.updateTitle);
 router.get('/delete', authz.verifyAdmin, titleController.deleteTitle);
 router.get('/detail/:slug', titleController.getTitle);
 router.get('/user', titleController.getUserTitles);
+router.post('/search', titleController.getUserSearchingTitles);
 router.get('/', titleController.getAllTitles);
 
 module.exports = router;

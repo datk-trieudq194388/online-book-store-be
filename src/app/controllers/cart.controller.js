@@ -8,8 +8,8 @@ class CartController{
 
         try {
             const userID = req.user._id;
-
-            const carts = await cartService.getAll(userID);
+            const isChecked = req.query.isChecked
+            const carts = await cartService.getAll(userID, isChecked == 'true' ? true : false);
 
             for (let i in carts){
                 carts[i] = carts[i].toObject();

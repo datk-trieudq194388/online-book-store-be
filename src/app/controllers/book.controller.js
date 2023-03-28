@@ -1,3 +1,4 @@
+const { BookStatus } = require('../../configs/global');
 const bookService = require('../../services/book.service');
 const titleService = require('../../services/title.service');
 const Util = require('../../utils/util');
@@ -8,8 +9,9 @@ class BookController{
         
         try{
             const titleID = req.params.titleID;
+            const status = req.query.status ?? BookStatus.ALL;
 
-            const books = await bookService.getAll(titleID);
+            const books = await bookService.getAll(titleID, +status);
 
             return res.json(books);
 

@@ -35,6 +35,13 @@ class CartService{
 
     }
 
+    deleteCheckedItems = async() => {
+
+        const items = await Cart.deleteMany({isChecked: true});
+        return  items;
+
+    }
+
     create = async(item) => {
 
         const nItem = await Cart.create(item);

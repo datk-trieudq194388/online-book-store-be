@@ -67,13 +67,28 @@ class TitleController{
 
             if(!title) return res.status(404).json({message: "not found"});
 
-            // console.log(title)
-            // console.log(title.trend + 1)
-            // return res.json(title);
             // increase trending
-            title = await titleService.update(title._id, {trend: title.trend + 1});
+            title = await titleService.update(title._id, {trend: title.trend + 0.01});
 
             return res.json(title);
+
+        }catch(err){
+            return Util.throwError(res, err);
+        }
+
+    }
+
+    getSlugByID = async(req, res) => {
+
+        try {
+
+            const titleID = req.params.id;
+
+            let slug = await titleService.getSlugByID(titleID, false);
+
+            if(!slug) return res.status(404).json({message: "not found"});
+
+            return res.json(slug);
 
         }catch(err){
             return Util.throwError(res, err);
@@ -96,6 +111,29 @@ class TitleController{
 
             if(!title) return res.status(500).json({message: 'cannot create title'});
             return res.json(title);
+
+        }catch(err){
+            return Util.throwError(res, err);
+        }
+
+    }
+
+    updateTitleSold = async(req, res) => {
+
+        try {
+            const titleID = req.query.id;
+            const sold = req.body.sold ?? 0;
+
+            const title = await titleService.findById(titleID, false);
+            if(!title) return res.status(404).json({message: 'not found'});
+            console.log('day la title', title);
+            title.sold = title.sold + sold;
+            console.log('day la title sau', title);
+            const nTitle = await titleService.update(titleID, {sold: title.sold});
+
+            if(!nTitle) return res.status(404).json({message: 'update title failed'});
+
+            return res.json(nTitle);
 
         }catch(err){
             return Util.throwError(res, err);

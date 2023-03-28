@@ -79,6 +79,7 @@ class TitleDTO {
     description;
     image;
     slug;
+    sold;
     createdAt;
     updatedAt;
     deletedAt;
@@ -98,6 +99,7 @@ class TitleDTO {
         this.description = data.description;
         this.image = data.image;
         this.slug = data.slug;
+        this.sold = data.sold;
         this.createdAt = data.createdAt;
         this.updatedAt = data.updatedAt;
         this.deletedAt = data.deletedAt;

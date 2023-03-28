@@ -61,7 +61,7 @@ class TitleService{
                                 input: '$books',
                                 as: 'book',
                                 cond: {
-                                    $eq: ['$$book.status', String(BookStatus.AVAILABLE)]
+                                    $eq: ['$$book.status', BookStatus.AVAILABLE]
                                 }
                             }
                         }
@@ -177,7 +177,7 @@ class TitleService{
                                 input: '$books',
                                 as: 'book',
                                 cond: {
-                                    $eq: ['$$book.status', String(BookStatus.AVAILABLE)]
+                                    $eq: ['$$book.status', BookStatus.AVAILABLE]
                                 }
                             }
                         }
@@ -260,6 +260,14 @@ class TitleService{
 
         title = await this.countQuantity(title);
         return new TitleDTO(title);
+    }
+
+    getSlugByID = async(titleID, containingDeletedItems) => {
+        let slug;
+        if(containingDeletedItems) slug = await Title.findOne({_id: titleID}).select('slug');
+        else slug = await Title.findOne({_id: titleID, deletedAt: null}).select('slug');
+
+        return slug;
     }
 
     checkExistedId = async(titleID) => {

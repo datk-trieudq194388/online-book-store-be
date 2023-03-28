@@ -103,7 +103,7 @@ class UserController {
             const user = await userService.findById(userID, false);
             
             const [oPwd, nPwd] = [body.oldPassword, body.newPassword];
-            // console.log(user.password);
+           
             const validPwd = await bcrypt.compare(oPwd, user.password);
             if(!validPwd) return res.status(404).json({message: 'wrong old password'});
 
@@ -125,6 +125,10 @@ class UserController {
             const body = req.body;
             delete body.password; delete body.role; delete body._id;
             const userID = req.user._id;
+
+            const phoneNumberCheck = await userService.checkPhoneNumber(body.phoneNumber);
+            if(phoneNumberCheck)
+                return res.status(409).json({message: 'phone number existed'});
 
             if(body.gender) body.gender = Util.formatGender(body.gender);
             

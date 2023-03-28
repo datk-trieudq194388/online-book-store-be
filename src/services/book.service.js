@@ -1,10 +1,14 @@
 const Book = require('../app/models/book.model');
+const { BookStatus } = require('../configs/global');
 
 class BookService{
     
-    getAll = async(titleID) => {
-    
-        const books = await Book.find({titleID: titleID});
+    getAll = async(titleID, status = BookStatus.ALL) => {
+        let query;
+        if(status == BookStatus.ALL) query = {titleID: titleID};
+        else query = {titleID: titleID, status: status}
+
+        const books = await Book.find(query);
         for(let i in books)
             books[i] = books[i].toObject();
         

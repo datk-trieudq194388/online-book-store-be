@@ -12,7 +12,7 @@ class Util {
             phoneNumber: data.phoneNumber,
             name: data.name,
             role: data.role,
-        }, ACCESS_SECRET_KEY, { expiresIn: 3*24*60 });
+        }, ACCESS_SECRET_KEY, { expiresIn: '3d' });
     }
 
     generateRefreshToken = (data) => {

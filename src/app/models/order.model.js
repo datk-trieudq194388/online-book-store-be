@@ -43,12 +43,15 @@ const schema = new Schema(
             type: Schema.Types.ObjectId, require: true, trim: true,
         },
         status: {
-            type: String, require: true, default: OrderStatus.PENDING,
+            type: Number, require: true, default: OrderStatus.PENDING,
+        },
+        totalPrice: {
+            type: Number, required: true, default: 0,
         },
         shippingCost: {
             type: Number, required: true, default: 0,
         },
-        totalAmount: {
+        finalPrice: {
             type: Number, required: true, default: 0,
         },
         notes: {
@@ -60,6 +63,7 @@ const schema = new Schema(
                 trim: true,
                 required: true,
             }], required: true,
+            // ["Duong QT", "0123456789", "Ha Noi", "HBT", "Dong Tam", "357 Vong"]
         }
     },
     {

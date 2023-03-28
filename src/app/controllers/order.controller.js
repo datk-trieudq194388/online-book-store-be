@@ -4,6 +4,7 @@ const userService = require('../../services/user.service');
 const bookService = require('../../services/book.service');
 const titleService = require('../../services/title.service');
 const Util = require('../../utils/util');
+const { OrderStatus, BookStatus } = require('../../configs/global');
 
 class OrderController{
     
@@ -11,11 +12,12 @@ class OrderController{
         
         try {
             const userID = req.query.userID;
-
-            let allOrders = await orderService.getAll(userID);
+            const type = req.query.type ?? OrderStatus.ALL;
+            console.log(+type)
+            let allOrders = await orderService.getAll(userID, +type);
 
             for(let i in allOrders)
-                allOrders[i] = await this.formatReturnedOrder(allOrders[i]);
+                allOrders[i] = await this.formatAdminOrder(allOrders[i]);
 
             return res.json(allOrders);
 
@@ -29,12 +31,17 @@ class OrderController{
         
         try {
             const userID = req.user._id;
+            const type = req.query.type ?? OrderStatus.ALL;
+            const limit = req.query.limit
 
-            let allOrders = await orderService.getAll(userID);
+            console.log(type)
+            let allOrders = await orderService.getMine(userID, type, limit);
+
+            console.log(allOrders);
 
             for(let i in allOrders)
-                allOrders[i] = await this.formatReturnedOrder(allOrders[i]);
-
+                allOrders[i] = await this.formatUserOrder(allOrders[i]);
+            
             return res.json(allOrders);
 
         }catch(err){
@@ -52,9 +59,28 @@ class OrderController{
 
             if(!order) return res.status(404).json({message: "not found"});
 
-            order = await this.formatReturnedOrder(order);
+            // order = await this.formatOrder(order);
 
             return res.json(order);
+
+        }catch(err){
+            return Util.throwError(res, err);
+        }
+
+    }
+
+    getOrderForAdmin = async(req, res) => {
+
+        try {
+            const orderID = req.params.id;
+
+            const order = await orderService.findById(orderID);
+
+            if(!order) return res.status(404).json({message: "not found"});
+
+            const bookIDList = await this.getBookIDListForAdmin(order);
+
+            return res.json({order, bookIDList});
 
         }catch(err){
             return Util.throwError(res, err);
@@ -94,29 +120,23 @@ class OrderController{
         try{
             const body = req.body;
             body.userID = req.user._id;
-            body.totalAmount = 0;
          
             const titlesInfo = body.items;
-            const cartIDs = body.cartIDs;
 
             for(let i in titlesInfo){
                 const title = await titleService.findById(titlesInfo[i].titleID, false);
                 if(!title || title.quantity == 0 || titlesInfo[i].count > title.quantity)
                     return res.status(500).json({message: 'an error occurred, please try again'});
-                
-                body.totalAmount += (titlesInfo[i].price * titlesInfo[i].count);
             }
 
-            body.totalAmount += body.shippingCost;
+            const deleteCheckedItems = await cartService.deleteCheckedItems()
+            console.log(deleteCheckedItems);
 
             const order = await orderService.create(body);
 
             if(!order) return res.status(500).json({message: 'cannot create order'});
 
-            cartIDs.forEach(async cartID => {
-                if(!(await cartService.delete(cartID))) 
-                    console.log('delete failed');
-            })
+         
             
             return res.json(order);
         }catch(err){
@@ -144,11 +164,56 @@ class OrderController{
 
     }
 
-    formatReturnedOrder = async (order) => {
+    getNumberOfOrderTypes = async(req, res) => {
         
-        //fix formating returned order
+        try {
+            const userID = req.user._id;
 
-        return order;
+            let result = await orderService.getNumberOfOrderTypes(userID);
+
+            return res.json(result);
+
+        }catch(err){
+            return Util.throwError(res, err);
+        }
+
+    }
+
+    formatAdminOrder = async (order) => {
+        
+        const formattedOrder = {}
+        formattedOrder['_id'] = order._id;
+        formattedOrder['recipientInfo'] = order.recipientInfo;
+        formattedOrder['finalPrice'] = order.finalPrice;
+        formattedOrder['status'] = order.status;
+        formattedOrder['createdAt'] = order.createdAt;
+        
+        return formattedOrder;
+    }
+
+    formatUserOrder = async (order) => {
+        
+        const formattedOrder = {}
+        formattedOrder['_id'] = order._id;
+        formattedOrder['recipientInfo'] = order.recipientInfo[0]??'';
+        formattedOrder['finalPrice'] = order.finalPrice;
+        formattedOrder['status'] = order.status;
+        formattedOrder['createdAt'] = order.createdAt;
+        
+        return formattedOrder;
+    }
+
+    getBookIDListForAdmin = async (order) => {
+        let bookIDList = {}
+        for(let i=0 ; i<order.items.length ; i++){
+            bookIDList[order.items[i].titleID] = [];
+            const bookList = await bookService.getAll(order.items[i].titleID, BookStatus.AVAILABLE);
+            bookList.forEach((e) => 
+                bookIDList[order.items[i].titleID].push(e._id)
+            )
+            
+        }
+        return bookIDList;
     }
 
 }

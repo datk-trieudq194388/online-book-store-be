@@ -8,7 +8,7 @@ const schema = new Schema(
             type: Schema.Types.ObjectId, required: true, trim: true, ref: 'Title'
         },
         status: {
-            type: String, required: true, trim: true, default: BookStatus.AVAILABLE,
+            type: Number, required: true, trim: true, default: BookStatus.AVAILABLE,
         }
     },
     {

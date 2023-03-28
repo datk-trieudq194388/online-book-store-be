@@ -25,7 +25,7 @@ class UserService{
 
         const nUser = await User.create(data);
 
-        return nUser ? new UserDTO(nUser) : nUser;
+        return nUser ? nUser.toObject() : nUser;
 
     }
 

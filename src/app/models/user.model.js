@@ -14,7 +14,7 @@ const schema = new Schema(
             type: String, required: true, trim: true,
         },
         role: { 
-            type: String, required: true, trim: true,
+            type: Number, required: true, trim: true,
         },
         firstname: {
             type: String, trim: true, default: null,
@@ -24,9 +24,6 @@ const schema = new Schema(
         },
         gender: {
             type: Number, trim: true, default: Gender.OTHER,
-        },
-        birthday: { 
-            type: Date, default: null,
         },
         address: { 
             type: [{
@@ -51,7 +48,6 @@ class UserDTO {
     firstname;
     lastname;
     gender;
-    birthday;
     address;
     createdAt;
     updatedAt;
@@ -63,7 +59,6 @@ class UserDTO {
         this.firstname = user.firstname;
         this.lastname = user.lastname;
         this.gender = user.gender;
-        this.birthday = user.birthday;
         this.address = user.address;
         this.createdAt = user.createdAt;
         this.updatedAt = user.updatedAt;
